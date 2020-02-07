@@ -40,6 +40,31 @@ app.get('/users/:id', async (req, res) => {
 	}
 });
 
+app.patch('/users/:id', async (req, res) => {
+	const updates = Object.keys(req.body);
+	const allowedUpdates = ['name', 'age', 'email', 'password'];
+	const isAllowedUpdate = updates.every(update =>
+		allowedUpdates.includes(update)
+	);
+
+	if (!isAllowedUpdate) {
+		res.status(400).send('Property not allowed to update');
+	}
+
+	try {
+		const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+			new: true,
+			runValidators: true
+		});
+		if (!user) {
+			return res.status(404).send('No User found');
+		}
+		res.send(user);
+	} catch (error) {
+		res.status(500).send();
+	}
+});
+
 app.post('/tasks', async (req, res) => {
 	const task = Task(req.body);
 	try {
@@ -65,6 +90,31 @@ app.get('/tasks/:id', async (req, res) => {
 		const task = await Task.findById(_id);
 		if (!task) {
 			return res.status(404).send('No Task found');
+		}
+		res.send(task);
+	} catch (error) {
+		res.status(500).send();
+	}
+});
+
+app.patch('/tasks/:id', async (req, res) => {
+	const updates = Object.keys(req.body);
+	const allowedUpdates = ['description', 'completed'];
+	const isAllowedUpdate = updates.every(update =>
+		allowedUpdates.includes(update)
+	);
+
+	if (!isAllowedUpdate) {
+		res.status(400).send('Property not allowed to update');
+	}
+
+	try {
+		const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+			new: true,
+			runValidators: true
+		});
+		if (!task) {
+			return res.status(404).send('No task found');
 		}
 		res.send(task);
 	} catch (error) {
