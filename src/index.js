@@ -65,6 +65,18 @@ app.patch('/users/:id', async (req, res) => {
 	}
 });
 
+app.delete('/users/:id', async (req, res) => {
+	try {
+		const user = await User.findByIdAndDelete(req.params.id);
+		if (!user) {
+			return res.status(404).send('No User found');
+		}
+		res.send(user);
+	} catch (error) {
+		res.status(500).send();
+	}
+});
+
 app.post('/tasks', async (req, res) => {
 	const task = Task(req.body);
 	try {
@@ -103,11 +115,9 @@ app.patch('/tasks/:id', async (req, res) => {
 	const isAllowedUpdate = updates.every(update =>
 		allowedUpdates.includes(update)
 	);
-
 	if (!isAllowedUpdate) {
 		res.status(400).send('Property not allowed to update');
 	}
-
 	try {
 		const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
 			new: true,
@@ -115,6 +125,18 @@ app.patch('/tasks/:id', async (req, res) => {
 		});
 		if (!task) {
 			return res.status(404).send('No task found');
+		}
+		res.send(task);
+	} catch (error) {
+		res.status(500).send();
+	}
+});
+
+app.delete('/tasks/:id', async (req, res) => {
+	try {
+		const task = await Task.findByIdAndDelete(req.params.id);
+		if (!task) {
+			return res.status(404).send('No Task found');
 		}
 		res.send(task);
 	} catch (error) {
