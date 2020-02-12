@@ -44,16 +44,21 @@ router.patch('/tasks/:id', async (req, res) => {
 		res.status(400).send('Property not allowed to update');
 	}
 	try {
-		const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+		/* 		const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
 			new: true,
 			runValidators: true
-		});
+		}); */
+
+		const task = await Task.findById(req.params.id);
+		updates.forEach(update => (task[update] = req.body[update]));
+		await task.save();
+
 		if (!task) {
 			return res.status(404).send('No task found');
 		}
 		res.send(task);
 	} catch (error) {
-		res.status(500).send();
+		res.status(500).send(error);
 	}
 });
 
