@@ -27,6 +27,18 @@ router.post('/users/login', async (req, res) => {
 	}
 });
 
+// Log out route
+router.post('/users/logout', auth, async (req, res) => {
+	try {
+		console.log(req.user.tokens);
+		req.user.tokens = req.user.tokens.filter(
+			token => token.token !== req.token
+		);
+		await req.user.save();
+		res.send('Loged out');
+	} catch (error) {}
+});
+
 // get all user out of DB - no auth requirede
 router.get('/users', async (req, res) => {
 	try {
