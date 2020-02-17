@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const Task = require('./task');
 const jwt = require('jsonwebtoken');
 
 const userSchema = mongoose.Schema({
@@ -75,12 +76,26 @@ userSchema.statics.findByCredentials = async (email, password) => {
 	return user;
 };
 
+// Virtual - Reference from user to their tasks
+userSchema.virtual('tasks', {
+	ref: 'Task',
+	localField: '_id',
+	foreignField: 'owner'
+});
+
 // Hashing password as a middleware
 userSchema.pre('save', async function(next) {
 	const user = this;
 	if (user.isModified('password')) {
 		user.password = await bcrypt.hash(user.password, 8);
 	}
+	next();
+});
+
+// Remove all tasks of a delete user as a middleware
+userSchema.pre('remove', async function(next) {
+	const user = this;
+	await Task.deleteMany({ owner: user._id });
 	next();
 });
 
