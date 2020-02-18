@@ -50,7 +50,10 @@ const userSchema = mongoose.Schema(
 					required: true
 				}
 			}
-		]
+		],
+		avatar: {
+			type: Buffer
+		}
 	},
 	{
 		timestamps: true
@@ -66,6 +69,18 @@ userSchema.methods.generateAuthToken = async function() {
 	console.log(user.tokens);
 	await user.save();
 	return token;
+};
+
+// Delete some data from the returned data
+userSchema.methods.toJSON = function() {
+	const user = this;
+	const userObject = user.toObject();
+
+	delete userObject.password;
+	delete userObject.tokens;
+	delete userObject.avatar;
+
+	return userObject;
 };
 
 // Login user by email and password
